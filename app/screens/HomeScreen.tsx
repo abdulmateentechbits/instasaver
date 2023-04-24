@@ -12,6 +12,8 @@ import {
   TextInput,
   Image,
   PermissionsAndroid,
+  Platform,
+  ToastAndroid,
 } from "react-native"
 import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { Header, Screen } from "app/components"
@@ -41,6 +43,16 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
 
   const handleDownload = async () => {
     // handle download logic here
+    if (!url) {
+      ToastAndroid.show(`Please enter post link!`, ToastAndroid.SHORT)
+      return
+    }
+
+    const regex = /^https:\/\/www\.instagram\.com\/reel\/[a-zA-Z0-9_-]{11}/
+    if (!regex.test(url)) {
+      ToastAndroid.show(`Please enter a valid link!`, ToastAndroid.SHORT)
+      return
+    }
 
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
@@ -54,32 +66,53 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
 
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       const downloadLink = await getDownloadLink(url)
-      console.log("downloadLink",downloadLink);
+      console.log("downloadLink", downloadLink)
       if (downloadLink) {
         const { dirs } = RNFetchBlob.fs
+        const downloadDir = Platform.OS === "ios" ? dirs.DocumentDir : dirs.DownloadDir
+        const folderName = "InstagMagnet"
         const fileExt = "." + downloadLink.split(".").pop()
-        const fileName = `reel_${new Date().getTime()}_myVideo.mp4`
-        const fileDir = `${dirs.DownloadDir}/${fileName}`
+        const fileName = `reel_${new Date().getTime()}.mp4`
+        const folderPath = `${downloadDir}/${folderName}`
+        const filePath = `${folderPath}/${fileName}`
+
+        // Check if the folder exists, create it if it doesn't
+        const isFolderExists = await RNFetchBlob.fs.isDir(folderPath)
+        if (!isFolderExists) {
+          await RNFetchBlob.fs.mkdir(folderPath)
+        }
+
         const config = {
           fileCache: true,
           addAndroidDownloads: {
             useDownloadManager: true,
             notification: true,
-            path: fileDir,
+            path: filePath,
             description: "Downloading reel video...",
           },
         }
+
         const res = await RNFetchBlob.config(config).fetch("GET", downloadLink)
-        alert(`File downloaded: ${res.path()}`)
+        setUrl("")
+        ToastAndroid.show(`File downloaded: ${res.path()}`, ToastAndroid.SHORT)
       } else {
-        alert("Error while fetching your link may be your link is private, please try again!")
+        ToastAndroid.show(
+          "Error while fetching your link may be your link is private, please try again!",
+          ToastAndroid.SHORT,
+        )
       }
     } else {
-      alert("Storage permission denied")
+      ToastAndroid.show("Storage permission denied", ToastAndroid.SHORT)
     }
   }
   const handleGameComplete = () => {
     setGameActive(false)
+    setUrl("")
+    // Resume video download here
+  }
+  const onCancelGame = () => {
+    setGameActive(false)
+    setUrl("")
     // Resume video download here
   }
 
@@ -134,7 +167,9 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
       </View>
       {/* Below empty space */}
       <View style={{ marginTop: 15 }}>
-        {gameActive && <GuessNumberGame onGameComplete={handleGameComplete} />}
+        {gameActive && (
+          <GuessNumberGame onGameComplete={handleGameComplete} onCancelGame={onCancelGame} />
+        )}
       </View>
     </Screen>
   )

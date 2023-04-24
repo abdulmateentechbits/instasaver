@@ -1,16 +1,25 @@
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { useState } from "react"
 import { View, Text, TextInput, Button, StyleSheet } from "react-native"
 
 interface GameProps {
   onGameComplete: (score: number) => void
+  onCancelGame: () => void
 }
 
-const GuessNumberGame: React.FC<GameProps> = ({ onGameComplete }) => {
+const GuessNumberGame: React.FC<GameProps> = ({ onGameComplete, onCancelGame }) => {
   const [secretNumber, setSecretNumber] = useState(Math.floor(Math.random() * 100) + 1)
   const [guess, setGuess] = useState("")
   const [attempts, setAttempts] = useState(0)
   const [message, setMessage] = useState("")
+
+  const cancelGame = () => {
+    setGuess("")
+    setAttempts(0)
+    setMessage("")
+    onCancelGame()
+  }
 
   const handleGuess = () => {
     const parsedGuess = parseInt(guess, 10)
@@ -58,7 +67,10 @@ const GuessNumberGame: React.FC<GameProps> = ({ onGameComplete }) => {
         value={guess}
         onChangeText={setGuess}
       />
-      <Button title="Guess" onPress={handleGuess} />
+      <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+        <View><Button title="Cancel" onPress={cancelGame} /></View>        
+        <View style={{marginLeft:20}}><Button title="Guess" onPress={handleGuess}/></View>
+      </View>
     </View>
   )
 }
