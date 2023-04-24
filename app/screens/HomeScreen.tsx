@@ -1,7 +1,8 @@
+/* eslint-disable react-native/split-platform-components */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState, useCallback, useRef, useMemo } from "react"
 import {
   View,
   ViewStyle,
@@ -22,6 +23,8 @@ import { colors } from "../theme/colors"
 import GuessNumberGame from "app/components/GuessNumberGame"
 import { getDownloadLink } from "app/utils/apiRequest"
 import RNFetchBlob from "rn-fetch-blob"
+import { BottomSheetModal } from "@gorhom/bottom-sheet"
+import { Button } from "../components/Button"
 
 const downloadIcon = require("../../assets/images/Monochrome.png")
 const hyperLink = require("../../assets/images/Outline.png")
@@ -34,6 +37,8 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   const [fontSize, setFontSize] = useState(30)
   const [url, setUrl] = useState("")
   const [gameActive, setGameActive] = useState(false)
+  // ref
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
 
   useEffect(() => {
     const { width } = Dimensions.get("window")
@@ -71,8 +76,15 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
         const { dirs } = RNFetchBlob.fs
         const downloadDir = Platform.OS === "ios" ? dirs.DocumentDir : dirs.DownloadDir
         const folderName = "InstagMagnet"
-        const fileExt = "." + downloadLink.split(".").pop()
-        const fileName = `reel_${new Date().getTime()}.mp4`
+        const filename = decodeURIComponent(downloadLink.split("filename=")[1].split("&")[0])
+        let fileName
+        if (filename) {
+          const words = filename.split(" ")
+          const firstTwoWords = words.slice(0, 3).join("_")
+          fileName = `${firstTwoWords}.mp4`
+        } else {
+          fileName = `reel_${new Date().getTime()}.mp4`
+        }
         const folderPath = `${downloadDir}/${folderName}`
         const filePath = `${folderPath}/${fileName}`
 
@@ -116,70 +128,109 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
     // Resume video download here
   }
 
+  // variables
+  const snapPoints = useMemo(() => ["25%", "69%"], [])
+
+  // callbacks
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheetModalRef.current?.present()
+  }, [])
+
   return (
-    <Screen
-      preset="auto"
-      contentContainerStyle={$screenContentContainer}
-      safeAreaEdges={["top", "bottom"]}
-    >
-      <Header
-        titleMode="flex"
-        LeftActionComponent={
-          <TouchableOpacity>
-            <View style={$customLeftAction}>
-              <View style={$childItem} />
-              <View style={$childItem} />
-              <View style={$childItem} />
-              <View style={$childItem} />
-            </View>
-          </TouchableOpacity>
-        }
-        safeAreaEdges={[]}
-      />
-      {/* Title */}
-      <View style={{ marginTop: 33 }}>
-        <Text
-          style={{
-            fontWeight: "600",
-            fontSize,
-            lineHeight: fontSize,
-            color: "#F6F6F8",
-          }}
-        >
-          Insta Downloader
-        </Text>
-      </View>
-      {/* Search Bar */}
-      <View style={$container}>
-        <View style={$inputContainer}>
-          <Image source={hyperLink} />
-          <TextInput
-            style={$input}
-            placeholder="Paste Post link here..."
-            placeholderTextColor="rgba(149, 144, 174, 0.54)"
-            value={url}
-            onChangeText={(text) => setUrl(text)}
-          />
+    <>
+      <Screen
+        preset="auto"
+        contentContainerStyle={$screenContentContainer}
+        safeAreaEdges={["top", "bottom"]}
+      >
+        <Header
+          titleMode="flex"
+          LeftActionComponent={
+            <TouchableOpacity onPress={handlePresentModalPress}>
+              <View style={$customLeftAction}>
+                <View style={$childItem} />
+                <View style={$childItem} />
+                <View style={$childItem} />
+                <View style={$childItem} />
+              </View>
+            </TouchableOpacity>
+          }
+          safeAreaEdges={[]}
+        />
+        {/* Title */}
+        <View style={{ marginTop: 33 }}>
+          <Text
+            style={{
+              fontWeight: "600",
+              fontSize,
+              lineHeight: fontSize,
+              color: "#F6F6F8",
+            }}
+          >
+            Insta Downloader
+          </Text>
         </View>
-        <TouchableOpacity style={$downloadButton} onPress={handleDownload} disabled={gameActive}>
-          <Image source={downloadIcon} />
-        </TouchableOpacity>
-      </View>
-      {/* Below empty space */}
-      <View style={{ marginTop: 15 }}>
-        {gameActive && (
-          <GuessNumberGame onGameComplete={handleGameComplete} onCancelGame={onCancelGame} />
+        {/* Search Bar */}
+        <View style={$container}>
+          <View style={$inputContainer}>
+            <Image source={hyperLink} />
+            <TextInput
+              style={$input}
+              placeholder="Paste Post link here..."
+              placeholderTextColor="rgba(149, 144, 174, 0.54)"
+              value={url}
+              onChangeText={(text) => setUrl(text)}
+            />
+          </View>
+          <TouchableOpacity style={$downloadButton} onPress={handleDownload} disabled={gameActive}>
+            <Image source={downloadIcon} />
+          </TouchableOpacity>
+        </View>
+        {/* Below empty space */}
+        <View style={{ marginTop: 15 }}>
+          {gameActive && (
+            <GuessNumberGame onGameComplete={handleGameComplete} onCancelGame={onCancelGame} />
+          )}
+        </View>
+      </Screen>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={1}
+        snapPoints={snapPoints}
+        handleComponent={() => (
+          <View style={$draggableContainer}>
+            <TouchableOpacity onPress={() => bottomSheetModalRef.current?.close()}>
+              <View style={$draggableIndicator} />
+            </TouchableOpacity>
+          </View>
         )}
-      </View>
-    </Screen>
+      >
+        <View style={$contentContainer}></View>
+      </BottomSheetModal>
+    </>
   )
 })
+
 const $screenContentContainer: ViewStyle = {
   paddingVertical: spacing.huge,
   paddingHorizontal: spacing.large,
   backgroundColor: colors.background,
 }
+const $draggableContainer: ViewStyle & TextStyle = {
+  alignItems: "center",
+}
+const $draggableIndicator: ViewStyle = {
+  width: 40,
+  height: 5,
+  borderRadius: 2.5,
+  backgroundColor: "#ccc",
+  marginTop: 8,
+}
 
+const $contentContainer: ViewStyle = {
+  flex: 1,
+  alignItems: "center",
+}
 const $container: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",

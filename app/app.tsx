@@ -22,6 +22,7 @@ import * as storage from "./utils/storage"
 import { customFontsToLoad } from "./theme"
 import { setupReactotron } from "./services/reactotron"
 import Config from "./config"
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet"
 
 // Set up Reactotron, which is a free desktop app for inspecting and debugging
 // React Native apps. Learn more here: https://github.com/infinitered/reactotron
@@ -105,11 +106,13 @@ function App(props: AppProps) {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <ErrorBoundary catchErrors={Config.catchErrors}>
-        <AppNavigator
-          linking={linking}
-          initialState={initialNavigationState}
-          onStateChange={onNavigationStateChange}
-        />
+        <BottomSheetModalProvider>
+          <AppNavigator
+            linking={linking}
+            initialState={initialNavigationState}
+            onStateChange={onNavigationStateChange}
+          />
+        </BottomSheetModalProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
   )
