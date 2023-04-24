@@ -7,7 +7,7 @@ const ar: Translations = {
     back: "خلف",
     logOut: "تسجيل خروج", // @demo remove-current-line
   },
-  welcomeScreen: {
+  HomeScreen: {
     postscript:
       "ربما لا يكون هذا هو الشكل الذي يبدو عليه تطبيقك مالم يمنحك المصمم هذه الشاشات وشحنها في هذه الحالة",
     readyForLaunch: "تطبيقك تقريبا جاهز للتشغيل",

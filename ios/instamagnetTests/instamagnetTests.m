@@ -5,7 +5,7 @@
 #import <React/RCTRootView.h>
 
 #define TIMEOUT_SECONDS 600
-#define TEXT_TO_LOOK_FOR @"Welcome to React"
+#define TEXT_TO_LOOK_FOR @"Home to React"
 
 @interface instamagnetTests : XCTestCase
 
@@ -26,7 +26,7 @@
   return NO;
 }
 
-- (void)testRendersWelcomeScreen
+- (void)testRendersHomeScreen
 {
   UIViewController *vc = [[[RCTSharedApplication() delegate] window] rootViewController];
   NSDate *date = [NSDate dateWithTimeIntervalSinceNow:TIMEOUT_SECONDS];

@@ -1,5 +1,5 @@
 /**
- * Welcome to the main entry point of the app. In this file, we'll
+ * Home to the main entry point of the app. In this file, we'll
  * be kicking off our app.
  *
  * Most of this file is boilerplate and you shouldn't need to modify
@@ -47,7 +47,7 @@ const config = {
     Login: {
       path: "",
     },
-    Welcome: "welcome",
+    Home: "Home",
     Demo: {
       screens: {
         DemoShowroom: {

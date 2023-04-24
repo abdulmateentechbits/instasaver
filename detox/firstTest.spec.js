@@ -12,8 +12,8 @@ describe("Example", () => {
     await expect(element(by.id("login-heading"))).toBeVisible()
   })
 
-  it("should go to welcome screen after logging in", async () => {
+  it("should go to Home screen after logging in", async () => {
     await element(by.id("login-button")).tap()
-    await expect(element(by.id("welcome-heading"))).toBeVisible()
+    await expect(element(by.id("Home-heading"))).toBeVisible()
   })
 })
