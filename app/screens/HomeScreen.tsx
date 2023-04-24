@@ -15,6 +15,7 @@ import {
   PermissionsAndroid,
   Platform,
   ToastAndroid,
+  ScrollView,
 } from "react-native"
 import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { Header, Screen } from "app/components"
@@ -23,13 +24,160 @@ import { colors } from "../theme/colors"
 import GuessNumberGame from "app/components/GuessNumberGame"
 import { getDownloadLink } from "app/utils/apiRequest"
 import RNFetchBlob from "rn-fetch-blob"
-import { BottomSheetModal } from "@gorhom/bottom-sheet"
-import { Button } from "../components/Button"
+import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet"
 
 const downloadIcon = require("../../assets/images/Monochrome.png")
 const hyperLink = require("../../assets/images/Outline.png")
+const Checked = require("../../assets/images/Checked.png")
+const favorite = require("../../assets/images/more_app.png")
+const Setting = require("../../assets/images/Setting.png")
+const file = require("../../assets/images/file.png")
+const lan = require("../../assets/images/lan.png")
+const share = require("../../assets/images/share.png")
 
 interface HomeScreenProps extends AppStackScreenProps<"Home"> {}
+
+const tabs = [
+  { title: "Download", icon: Checked, screen: "DownloadScreen" },
+  { title: "Settings", icon: Setting, screen: "SettingsScreen" },
+  { title: "Favorite", icon: favorite, screen: "FavoriteScreen" },
+]
+
+const Tab = ({ icon, onPress, isActive }) => {
+  return (
+    <TouchableOpacity
+      style={[$tab, isActive && { backgroundColor: "powderblue" }]}
+      onPress={onPress}
+    >
+      <Image source={icon} />
+    </TouchableOpacity>
+  )
+}
+
+const BottomSheetTabs = () => {
+  const [activeTab, setActiveTab] = useState(tabs[0].screen)
+  const renderItem = ({ item, index }) => (
+    <Tab
+      icon={item.icon}
+      onPress={() => setActiveTab(item.screen)}
+      isActive={index === activeTab}
+    />
+  )
+
+  const shareApp = () => {
+    console.log("Add logic after app is live on play store")
+  }
+
+  return (
+    <View
+      style={{
+        padding: 16,
+        backgroundColor: "#fff",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+      }}
+    >
+      <BottomSheetFlatList
+        data={tabs}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.title}
+        horizontal
+        contentContainerStyle={$tabContainer}
+        showsHorizontalScrollIndicator={false}
+      />
+      {activeTab === "DownloadScreen" ? (
+        <View style={{ flex: 2 }}>
+        <ScrollView>
+          <Text style={{ fontWeight: "600", fontSize: 18, color: "#3C3360" }}>Download</Text>
+        </ScrollView>
+        </View>
+      ) : activeTab === "SettingsScreen" ? (
+        <View style={{ flex: 2 }}>
+          <ScrollView>
+            <Text style={{ fontWeight: "600", fontSize: 18, color: "#3C3360" }}>Setting</Text>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={{ fontWeight: "400", fontSize: 16, color: "#9590AE", marginTop: 30 }}>
+                General
+              </Text>
+              <View style={{ flexDirection: "row", alignItems: "center", marginTop: 15 }}>
+                <View>
+                  <Image source={file} />
+                </View>
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={{ fontWeight: "600", fontSize: 16, color: "#3C3360" }}>
+                    Storage Folder
+                  </Text>
+                  <Text
+                    style={{
+                      fontStyle: "normal",
+                      fontWeight: "400",
+                      fontSize: 13,
+                      color: "#9590AE",
+                    }}
+                  >
+                    Internal Storage/InstaMagnet
+                  </Text>
+                </View>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center", marginTop: 17 }}>
+                <View>
+                  <Image source={lan} />
+                </View>
+                <View style={{ marginLeft: 10 }}>
+                  <Text style={{ fontWeight: "600", fontSize: 16, color: "#3C3360" }}>
+                    Default Language
+                  </Text>
+                  <Text
+                    style={{
+                      fontStyle: "normal",
+                      fontWeight: "400",
+                      fontSize: 13,
+                      color: "#9590AE",
+                    }}
+                  >
+                    English
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={{ fontWeight: "400", fontSize: 16, color: "#9590AE", marginTop: 30 }}>
+                Advance
+              </Text>
+              {/* Need to add logic when app is live */}
+              <TouchableOpacity onPress={shareApp}>
+                <View style={{ flexDirection: "row", alignItems: "center", marginVertical: 15 }}>
+                  <View>
+                    <Image source={share} />
+                  </View>
+                  <View style={{ marginLeft: 10 }}>
+                    <Text style={{ fontWeight: "600", fontSize: 16, color: "#3C3360" }}>Share</Text>
+                    <Text
+                      style={{
+                        fontStyle: "normal",
+                        fontWeight: "400",
+                        fontSize: 13,
+                        color: "#9590AE",
+                      }}
+                    >
+                      Please share this app with your friends
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </View>
+      ) : activeTab === "FavoriteScreen" ? (
+        <View style={{ flex: 2 }}>
+          <ScrollView>
+            <Text style={{ fontWeight: "600", fontSize: 18, color: "#3C3360" }}>More Apps</Text>
+          </ScrollView>
+        </View>
+      ) : null}
+    </View>
+  )
+}
 
 export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
   _props, // @demo remove-current-line
@@ -71,7 +219,6 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
 
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
       const downloadLink = await getDownloadLink(url)
-      console.log("downloadLink", downloadLink)
       if (downloadLink) {
         const { dirs } = RNFetchBlob.fs
         const downloadDir = Platform.OS === "ios" ? dirs.DocumentDir : dirs.DownloadDir
@@ -205,7 +352,9 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
           </View>
         )}
       >
-        <View style={$contentContainer}></View>
+        <View style={$contentContainer}>
+          <BottomSheetTabs />
+        </View>
       </BottomSheetModal>
     </>
   )
@@ -215,6 +364,22 @@ const $screenContentContainer: ViewStyle = {
   paddingVertical: spacing.huge,
   paddingHorizontal: spacing.large,
   backgroundColor: colors.background,
+}
+const $tabContainer: ViewStyle = {
+  padding: 16,
+  backgroundColor: "#fff",
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+}
+
+const $tab: ViewStyle = {
+  width: 67,
+  height: 80,
+  backgroundColor: "#F6F6F8",
+  borderRadius: 20,
+  justifyContent: "center",
+  alignItems: "center",
+  marginRight: 25,
 }
 const $draggableContainer: ViewStyle & TextStyle = {
   alignItems: "center",
