@@ -26,6 +26,7 @@ import GuessNumberGame from "app/components/GuessNumberGame"
 import { getDownloadLink } from "app/utils/apiRequest"
 import RNFetchBlob from "rn-fetch-blob"
 import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet"
+import { DownloadListScreen } from "./DownloadListScreen"
 
 const downloadIcon = require("../../assets/images/Monochrome.png")
 const hyperLink = require("../../assets/images/Outline.png")
@@ -90,7 +91,7 @@ const BottomSheetTabs = () => {
       {activeTab === "DownloadScreen" ? (
         <View style={{ flex: 2 }}>
         <ScrollView>
-          <Text style={{ fontWeight: "600", fontSize: 18, color: "#3C3360" }}>Download</Text>
+          <DownloadListScreen />
         </ScrollView>
         </View>
       ) : activeTab === "SettingsScreen" ? (
