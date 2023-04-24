@@ -1,3 +1,4 @@
+/* eslint-disable react-native/sort-styles */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { useState } from "react"
@@ -68,8 +69,12 @@ const GuessNumberGame: React.FC<GameProps> = ({ onGameComplete, onCancelGame }) 
         onChangeText={setGuess}
       />
       <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-        <View><Button title="Cancel" onPress={cancelGame} /></View>        
-        <View style={{marginLeft:20}}><Button title="Guess" onPress={handleGuess}/></View>
+        <View>
+          <Button title="Cancel" onPress={cancelGame} />
+        </View>
+        <View style={{ marginLeft: 20 }}>
+          <Button title="Guess" onPress={handleGuess} />
+        </View>
       </View>
     </View>
   )
@@ -100,6 +105,7 @@ const styles = StyleSheet.create({
     padding: 10,
     textAlign: "center",
     width: 200,
+    color: "#fff",
   },
   message: {
     color: "red",

@@ -16,6 +16,7 @@ import {
   Platform,
   ToastAndroid,
   ScrollView,
+  ImageBackground
 } from "react-native"
 import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { Header, Screen } from "app/components"
@@ -34,6 +35,7 @@ const Setting = require("../../assets/images/Setting.png")
 const file = require("../../assets/images/file.png")
 const lan = require("../../assets/images/lan.png")
 const share = require("../../assets/images/share.png")
+const bgImg = require("../../assets/images/bgImg.jpg")
 
 interface HomeScreenProps extends AppStackScreenProps<"Home"> {}
 
@@ -334,11 +336,11 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
           </TouchableOpacity>
         </View>
         {/* Below empty space */}
-        <View style={{ marginTop: 15 }}>
+        <ImageBackground source={bgImg} imageStyle={{resizeMode:'cover',borderRadius:12}} style={{ marginTop: 15 }}>
           {gameActive && (
             <GuessNumberGame onGameComplete={handleGameComplete} onCancelGame={onCancelGame} />
           )}
-        </View>
+        </ImageBackground>
       </Screen>
       <BottomSheetModal
         ref={bottomSheetModalRef}
