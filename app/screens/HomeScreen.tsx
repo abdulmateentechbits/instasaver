@@ -225,7 +225,7 @@ export const HomeScreen: FC<HomeScreenProps> = observer(function HomeScreen(
       if (downloadLink) {
         const { dirs } = RNFetchBlob.fs
         const downloadDir = Platform.OS === "ios" ? dirs.DocumentDir : dirs.DownloadDir
-        const folderName = "InstagMagnet"
+        const folderName = "InstaMagnet"
         const filename = decodeURIComponent(downloadLink.split("filename=")[1].split("&")[0])
         let fileName
         if (filename) {

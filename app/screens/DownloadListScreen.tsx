@@ -1,25 +1,79 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
-import { View, Text, Image, TouchableOpacity } from "react-native"
+import React, { FC, useEffect, useState } from "react"
+import { View, Text, Image, TouchableOpacity ,PermissionsAndroid, Alert} from "react-native"
+import { deleteAsync, readDirectoryAsync } from "expo-file-system"
+import RNFS from 'react-native-fs';
+
 const thumbnail = require("../../assets/images/Thumbnail.png")
 const videoIcon = require("../../assets/images/video_icon.png")
 const share = require("../../assets/images/Share-2.png")
 const Trashed = require("../../assets/images/Trashed.png")
 
 export const DownloadListScreen: FC = observer(function DownloadListScreen(_props) {
+  const [downloadedVideos, setDownloadedVideos] = useState<string[]>([])
+  const [deletedFile, setDeletedFile] = useState(null);
+
+  useEffect(() => {
+    async function loadDownloadedVideos() {
+      try {
+        const directory = await readDirectoryAsync(
+          "file:///storage/emulated/0/Download/InstaMagnet/",
+        )
+        const videos = directory.filter((file) => file.endsWith(".mp4") || file.endsWith(".mov"))
+        setDownloadedVideos(videos)
+      } catch (error) {
+        console.log("Error reading directory:", error)
+        setDownloadedVideos([])
+      }
+    }
+
+    loadDownloadedVideos()
+  }, [deletedFile])
+
+  
+  const handleDeleteVideo = (videoName) => {
+    const videoPath = `file:///storage/emulated/0/Download/InstaMagnet/${videoName}`
+    Alert.alert(
+      'Delete Video',
+      `Are you sure you want to delete ${videoName}?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            try {
+              await RNFS.unlink(videoPath);
+              // remove the deleted item from the state
+              setDownloadedVideos((prevVideos) =>
+              prevVideos.filter((video) => video !== videoName)
+            )
+              setDeletedFile(true); // update deletedFile state variable
+            } catch (error) {
+              console.log('Error deleting file: ', error);
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+  
   return (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Text style={{ fontWeight: "600", fontSize: 18, color: "#3C3360" }}>Download</Text>
         <Text style={{ fontWeight: "400", fontSize: 13, color: "#9590AE", marginLeft: 15 }}>
-         13 Files
+          { downloadedVideos?.length ? downloadedVideos?.length : 0} Files
         </Text>
       </View>
 
       {/* Load Local media */}
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((item, index) => (
+      {downloadedVideos?.map((item, index) => (
         <View key={index}>
           <View
             style={{
@@ -38,9 +92,10 @@ export const DownloadListScreen: FC = observer(function DownloadListScreen(_prop
                   fontWeight: "600",
                   fontSize: 14,
                   color: "#3C3360",
+                  width:'70%'
                 }}
               >
-                Video Title
+                {item}
               </Text>
             </View>
             <View
@@ -76,6 +131,7 @@ export const DownloadListScreen: FC = observer(function DownloadListScreen(_prop
                   justifyContent: "center",
                   marginLeft: 10,
                 }}
+                onPress={()=>handleDeleteVideo(item)}
               >
                 <Image source={Trashed} />
               </TouchableOpacity>
@@ -85,7 +141,7 @@ export const DownloadListScreen: FC = observer(function DownloadListScreen(_prop
             <Image source={thumbnail} style={{ height: "100%", resizeMode: "cover" }} />
           </View>
         </View>
-      ))}
+      )) || []}
     </View>
   )
 })
