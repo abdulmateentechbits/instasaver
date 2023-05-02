@@ -19,6 +19,7 @@ import Config from "../config"
 import { useStores } from "../models" // @demo remove-current-line
 import {
   HomeScreen,
+  VideoPlayerScreen
 } from "../screens"
 import { DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
@@ -38,6 +39,7 @@ import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
  */
 export type AppStackParamList = {
   Home: undefined
+  Player: {videoUrl:string}
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
   // 🔥 Your screens go here
@@ -70,6 +72,7 @@ const AppStack = observer(function AppStack() {
       initialRouteName="Home" // @demo remove-current-line
     >
       <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Player" component={VideoPlayerScreen} />
     </Stack.Navigator>
   )
 })

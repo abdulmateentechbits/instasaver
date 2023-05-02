@@ -27,6 +27,7 @@ import { getDownloadLink } from "app/utils/apiRequest"
 import RNFetchBlob from "rn-fetch-blob"
 import { BottomSheetFlatList, BottomSheetModal } from "@gorhom/bottom-sheet"
 import { DownloadListScreen } from "./DownloadListScreen"
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 const downloadIcon = require("../../assets/images/Monochrome.png")
 const hyperLink = require("../../assets/images/Outline.png")
@@ -56,6 +57,8 @@ const Tab = ({ icon, onPress, isActive }) => {
     </TouchableOpacity>
   )
 }
+
+
 
 const BottomSheetTabs = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].screen)
